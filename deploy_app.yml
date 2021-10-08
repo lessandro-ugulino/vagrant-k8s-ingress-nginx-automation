@@ -1,0 +1,6 @@
+---
+- name: Deploy common
+  hosts: k8s-master
+  become: yes
+  roles:
+    - apps/ingress-nginx

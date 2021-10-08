@@ -1,0 +1,13 @@
+- name: Convert DnsUtil Yaml template
+  become: false
+  template:
+    src: dnsutils.yml.j2
+    dest: /tmp/dnsutils.yml
+    mode: 0777
+
+- name: apply DnsUtil template
+  become: false
+  shell: kubectl apply -f /tmp/dnsutils.yml >> dnsutils.log
+  args:
+    chdir: $HOME
+    creates: dnsutils.log

@@ -1,0 +1,21 @@
+---
+- name: Deploy common
+  hosts: all
+  strategy: free
+  become: yes
+  roles:
+    - common
+
+- name: Deploy master
+  hosts: k8s-master
+  become: yes
+  roles:
+    - master
+
+- name: Deploy node
+  hosts:
+    - k8s-node-1
+    - k8s-node-2
+  become: yes
+  roles:
+    - nodes

@@ -1,0 +1,92 @@
+- name: Check if Kubernetes has already been initialized
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubernetes_init_stat
+
+# Initialize the Kubernetes cluster
+- name: Initialize the Kubernetes cluster using kubeadm
+  command: kubeadm init --apiserver-advertise-address="{{ node_ip }}" --pod-network-cidr=10.244.0.0/16
+  when: not kubernetes_init_stat.stat.exists
+
+# Setup the kube config file
+- name: Setup kubeconfig for vagrant user
+  command: "{{ item }}"
+  with_items:
+    - mkdir -p /home/vagrant/.kube
+    - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+    - chown vagrant:vagrant /home/vagrant/.kube/config
+    - chown vagrant:vagrant /home/vagrant/.kube/
+  when: not kubernetes_init_stat.stat.exists
+
+# Setup the container networking provider
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+- name: Copy join command to local file
+  become: true
+  local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+- name: Restart service docker, in all cases
+  service:
+    name: docker
+    state: restarted
+
+- name: update kernel settings [bridge-nf-call-ip6tables]
+  become: yes
+  sysctl:
+    name: net/bridge/bridge-nf-call-ip6tables
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: update kernel settings [net/bridge/bridge-nf-call-iptables]
+  become: yes
+  sysctl:
+    name: net/bridge/bridge-nf-call-iptables
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: update kernel settings [net/bridge/bridge-nf-call-arptables]
+  become: yes
+  sysctl:
+    name: net/bridge/bridge-nf-call-arptables
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Pause for 30 seconds to nodes be ready
+  pause:
+    seconds: 30
+
+- name: Convert flannel Yaml template
+  become: false
+  template:
+    src: kube-flannel.yml.j2
+    dest: /tmp/kube-flannel.yml
+    mode: 0777
+
+- name: apply kube flannel template
+  become: false
+  shell: kubectl apply -f /tmp/kube-flannel.yml >> flannel-apply.log
+  args:
+    chdir: $HOME
+    creates: flannel-apply.log
+
+- name: Convert Metric Yaml template
+  become: false
+  template:
+    src: metric-components.yaml.j2
+    dest: /tmp/metric-components.yaml
+    mode: 0777
+
+- name: apply Metric Yaml template
+  become: false
+  shell: kubectl apply -f /tmp/metric-components.yaml >> metric-apply.log
+  args:
+    chdir: $HOME
+    creates: metric-apply.log

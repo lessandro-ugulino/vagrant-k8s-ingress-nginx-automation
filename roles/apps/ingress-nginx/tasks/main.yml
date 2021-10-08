@@ -1,0 +1,47 @@
+- name: Convert Nginx Ingress Yaml template
+  become: false
+  template:
+    src: nginx-ingress-deploy.yml.j2
+    dest: /tmp/nginx-ingress-deploy.yml
+    mode: 0777
+
+- name: apply Nginx Ingress template
+  become: false
+  shell: kubectl apply -f /tmp/nginx-ingress-deploy.yml >> nginx-ingress-deploy.log
+  args:
+    chdir: $HOME
+    creates: nginx-ingress-deploy.log
+
+- name: Pause for 2 minutes to Nginx Ingress be ready
+  pause:
+    minutes: 2
+
+# Deploy Nginx website
+- name: Convert Website Yaml template
+  become: false
+  template:
+    src: website.yml.j2
+    dest: /tmp/website.yml
+    mode: 0777
+
+- name: apply Website template
+  become: false
+  shell: kubectl apply -f /tmp/website.yml >> website.yml.log
+  args:
+    chdir: $HOME
+    creates: website.yml.log
+
+# Apply Ngninx Ingress Rule
+- name: Convert Ingress Rule Yaml template
+  become: false
+  template:
+    src: nginx-ingress-rule.yml.j2
+    dest: /tmp/nginx-ingress-rule.yml
+    mode: 0777
+
+- name: apply Ingress Rule template
+  become: false
+  shell: kubectl apply -f /tmp/nginx-ingress-rule.yml >> nginx-ingress-rule.log
+  args:
+    chdir: $HOME
+    creates: nginx-ingress-rule.log

@@ -1,0 +1,1 @@
+kubeadm join 10.10.50.10:6443 --token kq19th.cybept17venf3r0z --discovery-token-ca-cert-hash sha256:f32fef65358a7e96ca9a36f7e6ebe4df6a6847ef2a4d1c701cda41e003f5e1a4 
