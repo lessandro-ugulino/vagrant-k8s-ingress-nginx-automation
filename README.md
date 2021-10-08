@@ -10,6 +10,7 @@
   - [Optional - Access Vagrant Virtual Machine](#optional-access-vagrant-virtual-machine)
   - [Result](#result)
   - [Delete the env](#delete-the-env)
+- [Output](#output)
 
 ## Requirements
 
@@ -68,3 +69,21 @@ Once the ansible deployment finishes, you can access `http://myapi.com`.
 ```bash
 sudo vagrant destroy -f
 ```
+
+# Output
+
+**Ingress Nginx pods**
+
+![ingress-nginx-pods](img/ingress-nginx-pods.png)
+
+**Ingress Nginx rule**
+
+![ingress-nginx-rule](img/ingress-nginx-rule.png)
+
+**Ingress Nginx svc**
+
+![ingress-nginx-svc](img/ingress-nginx-svc.png)
+
+**Nginx Website svc**
+
+![nginx-svc](img/nginx-svc.png)
