@@ -1,0 +1,1 @@
+# vagrant-k8s-ingress-nginx-automation
