@@ -1,1 +1,0 @@
-kubeadm join 10.10.50.10:6443 --token sal44b.woz4s1r985vsa2uw --discovery-token-ca-cert-hash sha256:e51f31d2abcbb4843aec918a47659b2b33e04135d45cf60aed44483abb8de94d 
