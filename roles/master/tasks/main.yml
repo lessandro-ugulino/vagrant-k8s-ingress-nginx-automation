@@ -3,6 +3,16 @@
     path: /etc/kubernetes/admin.conf
   register: kubernetes_init_stat
 
+- name: Grep local ip address
+  shell: "ifconfig -a eth1 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'"
+  register: local_ip
+
+- name: Configure node ip
+  lineinfile:
+    path: /etc/default/kubelet
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ local_ip.stdout }}
+    create: yes
+
 # Initialize the Kubernetes cluster
 - name: Initialize the Kubernetes cluster using kubeadm
   command: kubeadm init --apiserver-advertise-address="{{ node_ip }}" --pod-network-cidr=10.244.0.0/16

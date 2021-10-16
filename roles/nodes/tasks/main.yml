@@ -1,3 +1,13 @@
+- name: Grep local ip address
+  shell: "ifconfig -a eth1 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'"
+  register: local_ip
+
+- name: Configure node ip
+  lineinfile:
+    path: /etc/default/kubelet
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ local_ip.stdout }}
+    create: yes
+
 - name: Copy the join command to server location
   copy: src=join-command dest=/tmp/join-command.sh mode=0777
 
