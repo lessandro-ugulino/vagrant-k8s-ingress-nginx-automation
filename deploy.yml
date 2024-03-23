@@ -15,7 +15,7 @@
 - name: Deploy node
   hosts:
     - k8s-node-1
-    - k8s-node-2
+    # - k8s-node-2
   become: yes
   roles:
     - nodes
